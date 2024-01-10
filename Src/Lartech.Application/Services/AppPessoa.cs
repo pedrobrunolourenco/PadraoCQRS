@@ -2,6 +2,7 @@
 using Lartech.Application.Interfaces;
 using Lartech.Application.Models;
 using Lartech.Domain.Core.Comunicacao.Mediator;
+using Lartech.Domain.Core.Messages;
 using Lartech.Domain.CQRS.Commands;
 using Lartech.Domain.DTOS;
 using Lartech.Domain.Entidades;
@@ -66,26 +67,9 @@ namespace Lartech.Application.Services
             }
             var command = new AdicionarPessoaCommand(_pessoa.Id, _pessoa.Nome, _pessoa.CPF, _pessoa.DataNascimento, _pessoa.Ativo, _pessoa.ListaTelefones);
             await _mediatrHandler.EnviarCommand(command);
-
-            var _retorno = new PessoaModel
-            {
-                Id = command.IdPessoa,
-                Nome = command.Nome,
-                CPF = command.CPF,
-                DataNascimento = command.DataNascimento,
-                Ativo = command.Ativo,
-                ListaErros = command.ListaErros
-            };
-
-            var listatelefones = _mapper.Map<IEnumerable<TelefoneModel>>(_pessoa.ListaTelefones);
-            foreach (var item in listatelefones)
-            {
-                _retorno.ListaTelefone.Add(item);
-            }
-
-
-            return _retorno;
+            return await TranformaEmPessoaModel(command, _pessoa);
         }
+
         public async Task<PessoaModel> AlterarPessoa(PessoaAlteracaoModel pessoa)
         {
             var _pessoa = _mapper.Map<PessoaModel>(_servicePessoa.AlterarPessoa(_mapper.Map<Pessoa>(pessoa), pessoa.Id));
@@ -125,6 +109,26 @@ namespace Lartech.Application.Services
         {
             return _mapper.Map<PessoaModel>(await _servicePessoa.InativarPessoa(id));
         }
+
+        private Task<PessoaModel> TranformaEmPessoaModel(AdicionarPessoaCommand command, Pessoa _pessoa)
+        {
+            var _retorno = new PessoaModel
+            {
+                Id = command.IdPessoa,
+                Nome = command.Nome,
+                CPF = command.CPF,
+                DataNascimento = command.DataNascimento,
+                Ativo = command.Ativo,
+                ListaErros = command.ListaErros
+            };
+            var listatelefones = _mapper.Map<IEnumerable<TelefoneModel>>(_pessoa.ListaTelefones);
+            foreach (var item in listatelefones)
+            {
+                _retorno.ListaTelefone.Add(item);
+            }
+            return Task.Run( () => _retorno );
+        }
+
 
     }
 }

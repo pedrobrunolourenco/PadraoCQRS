@@ -31,6 +31,7 @@ namespace Lartech.Domain.CQRS.Commands
             if (await VerificarSeCPFJaExiste(message)) return false ;
             if (!await AdicionouTelefone(message)) return false;
             var pessoa = new Pessoa(message.Nome, message.CPF,message.DataNascimento,true);
+            if (!pessoa.Validar()) return false;
             pessoa.AtribuirId(message.IdPessoa);
             await _repositoryPessoa.Adicionar(pessoa);
             await _repositoryPessoa.Salvar();
@@ -69,12 +70,14 @@ namespace Lartech.Domain.CQRS.Commands
 
 
 
-        private bool ValidarComando(Command message)
+        private bool ValidarComando(AdicionarPessoaCommand message)
         {
             if (message.EhValido()) return true;
 
             foreach (var error in message.ValidationResult.Errors)
             {
+
+                message.ListaErros.Add(error.ErrorMessage);
                 _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
             }
 
