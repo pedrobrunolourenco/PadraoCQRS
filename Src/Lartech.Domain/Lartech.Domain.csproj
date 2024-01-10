@@ -8,6 +8,13 @@
 
 	<ItemGroup>
 		<PackageReference Include="FluentValidation" Version="8.4.0" />
+		<PackageReference Include="MediatR" Version="7.0.0" />
+
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="CQRS\Events\" />
+	  <Folder Include="CQRS\Queries\" />
 	</ItemGroup>
 
 
