@@ -1,4 +1,5 @@
 ﻿using Lartech.Application.Models;
+using Lartech.Domain.CQRS.Commands;
 using Lartech.Domain.DTOS;
 
 namespace Lartech.Application.Interfaces

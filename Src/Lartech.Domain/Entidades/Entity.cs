@@ -12,6 +12,11 @@ namespace Lartech.Domain.Entidades
         public Guid Id { get; private set; }
         public List<string> ListaErros { get; private set; }
 
+        public void AtribuirId(Guid id)
+        {
+            Id = id;
+        }
+
         public ValidationResult ValidationResult { get; set; }
         public abstract bool Validar();
 

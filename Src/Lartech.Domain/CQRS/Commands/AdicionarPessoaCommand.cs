@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Lartech.Domain.Core.Messages;
+using Lartech.Domain.Entidades;
 using System.Text.RegularExpressions;
 
 namespace Lartech.Domain.CQRS.Commands
@@ -11,14 +12,22 @@ namespace Lartech.Domain.CQRS.Commands
         public string CPF { get; private set; }
         public DateTime DataNascimento { get; private set; }
         public bool Ativo { get; private set; }
+        public List<Telefone?> ListaTelefones { get; private set; }
+        public List<string> ListaErros { get; private set; }
 
-        public AdicionarPessoaCommand(Guid idpessoa, string nome, string cpf, DateTime datanasimento, bool ativo)
+
+
+
+        public AdicionarPessoaCommand(Guid idpessoa, string nome, string cpf, DateTime datanasimento, bool ativo, List<Telefone> listaTelefone)
         {
             IdPessoa = idpessoa;
             Nome = nome;
             CPF = cpf;  
             DataNascimento = datanasimento;
             Ativo = ativo;
+            ListaTelefones = listaTelefone;
+            ListaErros = new List<string>();
+            AggregateId = idpessoa;
         }
 
 
@@ -64,6 +73,9 @@ namespace Lartech.Domain.CQRS.Commands
                 .Must(ValidarCPF)
                 .WithMessage("CPF inválido.");
 
+            RuleFor(p => p.ListaTelefones)
+                .NotEmpty()
+                .WithMessage("Informe um telefone.");
         }
 
         public static bool ValidarCPF(string cpf)

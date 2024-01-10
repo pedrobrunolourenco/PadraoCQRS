@@ -18,6 +18,8 @@
 
 	  <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.12" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+
 
   </ItemGroup>
 
@@ -25,6 +27,7 @@
 
 	<ItemGroup>
     <ProjectReference Include="..\Lartech.Application\Lartech.Application.csproj" />
+    <ProjectReference Include="..\Lartech.Domain\Lartech.Domain.csproj" />
     <ProjectReference Include="..\Lartech.Pessoa.Data\Lartech.Data.csproj" />
   </ItemGroup>
 

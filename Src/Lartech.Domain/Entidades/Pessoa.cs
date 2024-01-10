@@ -24,7 +24,7 @@ namespace Lartech.Domain.Entidades
         public string CPF { get; private set; }
         public DateTime DataNascimento { get; private set; }
         public bool Ativo { get; private set; }
-        public List<Telefone> ListaTelefones { get; private set; }
+        public List<Telefone?> ListaTelefones { get; private set; }
 
         private readonly List<Telefone> _telefones;
 

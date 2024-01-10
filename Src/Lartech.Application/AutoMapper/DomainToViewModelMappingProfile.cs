@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Lartech.Application.Models;
+using Lartech.Domain.CQRS.Commands;
 using Lartech.Domain.Entidades;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Lartech.Application.AutoMapper
         {
             CreateMap<Pessoa, PessoaModel>()
                 .ForMember(d => d.ListaTelefone, o => o.MapFrom(s => s.ListaTelefones));
+
             CreateMap<Telefone, TelefoneModel>();
         }
     }
