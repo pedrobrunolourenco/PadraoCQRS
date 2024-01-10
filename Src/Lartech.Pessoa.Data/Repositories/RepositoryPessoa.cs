@@ -72,6 +72,14 @@ namespace Lartech.Data.Repositories
             return await Task.Run(() => TransformarDTO(retorno).FirstOrDefault());
         }
 
+        public async Task<PessoaViewModel?> ObterPorCpf(string cpf, Guid id)
+        {
+            StringBuilder query = new StringBuilder();
+            query.Append(queryViewModelBase);
+            query.Append(@" WHERE p.CPF = @CPF ORDER BY p.Nome");
+            var retorno = _context.Database.GetDbConnection().QueryAsync<PessoaDTO>(query.ToString(), new { CPF = cpf }).Result.ToList();
+            return await Task.Run(() => TransformarDTO(retorno).FirstOrDefault());
+        }
         public async Task<IEnumerable<PessoaViewModel>> ObterPorParteDoNome(string nome)
         {
             StringBuilder query = new StringBuilder();

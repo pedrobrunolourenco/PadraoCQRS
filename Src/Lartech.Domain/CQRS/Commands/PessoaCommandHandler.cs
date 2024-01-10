@@ -4,6 +4,7 @@ using Lartech.Domain.Core.Messages.CommonMessges;
 using Lartech.Domain.Entidades;
 using Lartech.Domain.Interfaces.Repository;
 using MediatR;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Lartech.Domain.CQRS.Commands
 {
@@ -62,13 +63,14 @@ namespace Lartech.Domain.CQRS.Commands
 
         private async Task<bool> VerificarSeCPFJaExiste(AdicionarPessoaCommand message)
         {
-            var result = await _repositoryPessoa.Listar();
-            var retorno = result.Where(p => p.CPF == message.CPF && p.Id != message.IdPessoa).Any();
-            if(retorno) message.ListaErros.Add($"O CPF {message.CPF} já existe para outra pessoa.");
-            return retorno;
+            var result = await _repositoryPessoa.ObterPorCpf(message.CPF, message.IdPessoa);
+            if (result != null && result.Id != message.IdPessoa) 
+            {
+                message.ListaErros.Add($"O CPF {message.CPF} já existe para outra pessoa.");
+                return true;
+            }
+            return false;
         }
-
-
 
         private bool ValidarComando(AdicionarPessoaCommand message)
         {

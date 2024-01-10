@@ -12,6 +12,7 @@ namespace Lartech.Domain.Interfaces.Repository
         Task<IEnumerable<PessoaViewModel>> ObterInativos();
 
         Task<PessoaViewModel?> ObterPorCpf(string cpf);
+        Task<PessoaViewModel?> ObterPorCpf(string cpf, Guid id);
         Task<Pessoa> Inativar(Pessoa pessoa);
         Task<Pessoa> Ativar(Pessoa pessoa);
 
