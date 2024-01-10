@@ -1,0 +1,6 @@
+@Lartech.Api_HostAddress = http://localhost:5252
+
+GET {{Lartech.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
