@@ -4,6 +4,7 @@ using Lartech.Data;
 using Lartech.Data.Repositories;
 using Lartech.Domain.Core.Comunicacao.Mediator;
 using Lartech.Domain.CQRS.Commands;
+using Lartech.Domain.CQRS.Queries;
 using Lartech.Domain.Interfaces.Repository;
 using Lartech.Domain.Interfaces.Service;
 using Lartech.Domain.Services;
@@ -17,6 +18,9 @@ namespace Lartech.Api.Setup
         {
             services.AddScoped<IMediatrHandler, MediatrHandler>();
             services.AddScoped<IRequestHandler<AdicionarPessoaCommand, bool>, PessoaCommandHandler>();
+
+            services.AddScoped<IPessoaQuery, PessoaQuery>();
+
 
             // pessoa
             services.AddScoped<IRepositoryPessoa, RepositoryPessoa>();

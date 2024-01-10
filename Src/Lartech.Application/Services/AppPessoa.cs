@@ -4,6 +4,7 @@ using Lartech.Application.Models;
 using Lartech.Domain.Core.Comunicacao.Mediator;
 using Lartech.Domain.Core.Messages;
 using Lartech.Domain.CQRS.Commands;
+using Lartech.Domain.CQRS.Queries;
 using Lartech.Domain.DTOS;
 using Lartech.Domain.Entidades;
 using Lartech.Domain.Interfaces.Service;
@@ -15,46 +16,49 @@ namespace Lartech.Application.Services
     {
 
         private readonly IMapper _mapper;
+        private readonly IPessoaQuery _queryPessoa;
         private readonly IServicePessoa _servicePessoa;
         private readonly IMediatrHandler _mediatrHandler;
 
 
         public AppPessoa(IMapper mapper,
                          IMediatrHandler mediatrHandler,
+                         IPessoaQuery queryPessoa,
                          IServicePessoa servicePessoa)
         {
             _mapper = mapper;
             _mediatrHandler = mediatrHandler;
             _servicePessoa = servicePessoa;
+            _queryPessoa = queryPessoa;
         }
 
         public async Task<IEnumerable<PessoaViewModel>> ObterTodos()
         {
-            return await _servicePessoa.ObterTodos();
+            return await _queryPessoa.ObterTodos();
         }
 
         public async Task<IEnumerable<PessoaViewModel>> ObterAtivos()
         {
-            return await _servicePessoa.ObterAtivos();
+            return await _queryPessoa.ObterAtivos();
         }
 
         public async Task<IEnumerable<PessoaViewModel>> ObterInativos()
         {
-            return await _servicePessoa.ObterInativos();
+            return await _queryPessoa.ObterInativos();
         }
         public async Task<PessoaViewModel?> ObterPorId(Guid id)
         {
-            return await _servicePessoa.ObterPorId(id);
+            return await _queryPessoa.ObterPorId(id);
         }
 
         public async Task<PessoaViewModel?> ObterPorCpf(string cpf)
         {
-            return await _servicePessoa.ObterPorCpf(cpf);
+            return await _queryPessoa.ObterPorCpf(cpf);
         }
 
         public async Task<IEnumerable<PessoaViewModel>> ObterPorParteDoNome(string nome)
         {
-            return await _servicePessoa.ObterPorParteDoNome(nome);
+            return await _queryPessoa.ObterPorParteDoNome(nome);
         }
 
 
@@ -128,7 +132,5 @@ namespace Lartech.Application.Services
             }
             return Task.Run( () => _retorno );
         }
-
-
     }
 }

@@ -25,6 +25,7 @@ namespace Lartech.Api.Controllers
 
         [HttpGet]
         [Route("ObterTodos")]
+        [AllowAnonymous]
         public async Task<IActionResult> ObterTodos()
         {
             try
@@ -41,6 +42,7 @@ namespace Lartech.Api.Controllers
 
         [HttpGet]
         [Route("ObterPorId")]
+        [AllowAnonymous]
         public async Task<IActionResult> ObterPorId(Guid id)
         {
             try
@@ -57,6 +59,7 @@ namespace Lartech.Api.Controllers
 
         [HttpGet]
         [Route("ObterPorCPF")]
+        [AllowAnonymous]
         public async Task<IActionResult> ObterPorCpf(string cpf)
         {
             try
@@ -73,7 +76,8 @@ namespace Lartech.Api.Controllers
 
         [HttpGet]
         [Route("ObterPorParteNome")]
-        public  async Task<IActionResult> ObterPorParteDoNome(string nome)
+        [AllowAnonymous]
+        public async Task<IActionResult> ObterPorParteDoNome(string nome)
         {
             try
             {
@@ -89,6 +93,7 @@ namespace Lartech.Api.Controllers
 
         [HttpGet]
         [Route("ObterAtivos")]
+        [AllowAnonymous]
         public async Task<IActionResult> ObterAtivos()
         {
             try
@@ -105,6 +110,7 @@ namespace Lartech.Api.Controllers
 
         [HttpGet]
         [Route("ObterInativos")]
+        [AllowAnonymous]
         public async Task<IActionResult> ObterInativos()
         {
             try
