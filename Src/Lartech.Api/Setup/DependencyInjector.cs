@@ -18,6 +18,7 @@ namespace Lartech.Api.Setup
         {
             services.AddScoped<IMediatrHandler, MediatrHandler>();
             services.AddScoped<IRequestHandler<AdicionarPessoaCommand, bool>, PessoaCommandHandler>();
+            services.AddScoped<IRequestHandler<AlterarPessoaCommand, bool>, PessoaCommandHandler>();
 
             services.AddScoped<IPessoaQuery, PessoaQuery>();
 

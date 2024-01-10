@@ -9,7 +9,8 @@ using System.Reflection.Metadata.Ecma335;
 namespace Lartech.Domain.CQRS.Commands
 {
     public class PessoaCommandHandler :
-        IRequestHandler<AdicionarPessoaCommand, bool>
+        IRequestHandler<AdicionarPessoaCommand, bool>,
+        IRequestHandler<AlterarPessoaCommand, bool>
     {
         private readonly IRepositoryPessoa _repositoryPessoa;
         private readonly IRepositoryTelefone _repositoryTelefone;
@@ -38,6 +39,24 @@ namespace Lartech.Domain.CQRS.Commands
             await _repositoryPessoa.Salvar();
             return true;
         }
+
+        public async Task<bool> Handle(AlterarPessoaCommand message, CancellationToken cancellationToken)
+        {
+            if (!ValidarComando(message)) return false;
+            var _pessoa = await _repositoryPessoa.BuscarId(message.IdPessoa);
+            if (_pessoa == null) return false;
+
+            _pessoa.AtriuirNome(_pessoa.Nome);
+            _pessoa.AtriuirCPF(_pessoa.CPF);
+            _pessoa.AtriuirDataNascimento(_pessoa.DataNascimento);
+
+            if (!_pessoa.Validar()) return false;
+            if( await VerificarSeCPFJaExisteAlteracao(message) ) return false; ;
+            await _repositoryPessoa.Atualizar(_pessoa);
+            await _repositoryPessoa.Salvar();
+            return true;
+        }
+
 
         private async Task<bool> AdicionouTelefone(AdicionarPessoaCommand message)
         {
@@ -72,6 +91,18 @@ namespace Lartech.Domain.CQRS.Commands
             return false;
         }
 
+        private async Task<bool> VerificarSeCPFJaExisteAlteracao(AlterarPessoaCommand message)
+        {
+            var result = await _repositoryPessoa.ObterPorCpf(message.CPF);
+            if (result != null)
+            {
+                message.ListaErros.Add($"O CPF {message.CPF} já existe para outra pessoa.");
+                return true;
+            }
+            return false;
+        }
+
+
         private bool ValidarComando(AdicionarPessoaCommand message)
         {
             if (message.EhValido()) return true;
@@ -85,6 +116,21 @@ namespace Lartech.Domain.CQRS.Commands
 
             return false;
         }
+
+        private bool ValidarComando(AlterarPessoaCommand message)
+        {
+            if (message.EhValido()) return true;
+
+            foreach (var error in message.ValidationResult.Errors)
+            {
+
+                message.ListaErros.Add(error.ErrorMessage);
+                _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
+            }
+
+            return false;
+        }
+
 
     }
 }

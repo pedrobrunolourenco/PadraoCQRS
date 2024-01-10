@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Lartech.Domain.CQRS.Commands
 {
-    public class AdicionarPessoaCommand : Command
+    public class AlterarPessoaCommand : Command
     {
         public Guid IdPessoa { get; private set; }
         public string Nome { get; private set; }
@@ -19,11 +19,11 @@ namespace Lartech.Domain.CQRS.Commands
 
 
 
-        public AdicionarPessoaCommand(Guid idpessoa, string nome, string cpf, DateTime datanasimento, bool ativo, List<Telefone> listaTelefone)
+        public AlterarPessoaCommand(Guid idpessoa, string nome, string cpf, DateTime datanasimento, bool ativo, List<Telefone> listaTelefone)
         {
             IdPessoa = idpessoa;
             Nome = nome;
-            CPF = cpf;  
+            CPF = cpf;
             DataNascimento = datanasimento;
             Ativo = ativo;
             ListaTelefones = listaTelefone;
@@ -31,10 +31,9 @@ namespace Lartech.Domain.CQRS.Commands
             AggregateId = idpessoa;
         }
 
-
         public override bool EhValido()
         {
-            ValidationResult = new PessoaValidation().Validate(this);
+            ValidationResult = new AlterarPessoaValidation().Validate(this);
             return ValidationResult.IsValid;
         }
 
@@ -42,9 +41,9 @@ namespace Lartech.Domain.CQRS.Commands
     }
 
 
-    public class PessoaValidation : AbstractValidator<AdicionarPessoaCommand>
+    public class AlterarPessoaValidation : AbstractValidator<AlterarPessoaCommand>
     {
-        public PessoaValidation()
+        public AlterarPessoaValidation()
         {
             RuleFor(p => p.IdPessoa)
                  .NotEqual(Guid.Empty)
@@ -71,7 +70,7 @@ namespace Lartech.Domain.CQRS.Commands
                 .WithMessage("Data de nascimento deve ser inferior ao dia de hoje.");
 
             RuleFor(p => p.CPF)
-               .Must(ValidarCPF)
+                .Must(ValidarCPF)
                 .WithMessage("CPF inválido.");
 
             RuleFor(p => p.ListaTelefones)
@@ -86,3 +85,4 @@ namespace Lartech.Domain.CQRS.Commands
     }
 
 }
+
