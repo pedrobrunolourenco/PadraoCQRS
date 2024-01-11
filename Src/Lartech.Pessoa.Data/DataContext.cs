@@ -23,12 +23,6 @@ namespace Lartech.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //base.OnModelCreating(modelBuilder);
-            //foreach (var forenkey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
-            //{
-            //    forenkey.DeleteBehavior = DeleteBehavior.Restrict;
-            //}
-
 
             modelBuilder.ApplyConfiguration(new PessoaMapping());
             modelBuilder.ApplyConfiguration(new TelefoneMapping());
