@@ -100,14 +100,14 @@ namespace Lartech.Application.Services
         public async Task<PessoaModel> AlterarPessoa(PessoaAlteracaoModel pessoa)
         {
             var _pessoa = _mapper.Map<Pessoa>(pessoa);
-            var command = new AlterarPessoaCommand(_pessoa.Id, _pessoa.Nome, _pessoa.CPF, _pessoa.DataNascimento, _pessoa.Ativo, _pessoa.ListaTelefones);
-            await _mediatrHandler.EnviarCommand(command);
-
-            var telefones = _mapper.Map<IEnumerable<TelefoneModel>>(_queryPessoa.ObterTelefonesDaPessoa(pessoa.Id));
+            var telefones = await _queryPessoa.ObterTelefonesDaPessoa(pessoa.Id);
             foreach (var fone in telefones)
             {
                 _pessoa.AdicionarTelefoneNaLista(_mapper.Map<Telefone>(fone));
             }
+            var command = new AlterarPessoaCommand(_pessoa.Id, _pessoa.Nome, _pessoa.CPF, _pessoa.DataNascimento, _pessoa.Ativo, _pessoa.ListaTelefones);
+            await _mediatrHandler.EnviarCommand(command);
+
             return await TranformaEmPessoaModel(command, _pessoa);
         }
 

@@ -36,7 +36,7 @@ namespace Lartech.Application.Models
         [Required(ErrorMessage = "Necessário informar Data de Nascimento")]
         public DateTime DataNascimento { get; set; }
 
-        public List<TelefoneModel?> ListaTelefone { get; set; }
+        public List<TelefoneModel> ListaTelefone { get; set; }
 
         [IgnoreDataMember]
         [JsonIgnore]

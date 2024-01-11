@@ -37,11 +37,14 @@ namespace Lartech.Domain.CQRS.Commands
         {
 
             if (!ValidarComando(message)) return false;
-            if (await VerificarSeCPFJaExiste(message)) return false;
+            if (await VerificarSeCPFJaExiste(message.CPF, message.IdPessoa)) 
+            {
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, $"O CPF {message.CPF} já existe para outra pessoa."));
+                return false;
+            }
             if (!await AdicionouTelefone(message)) return false;
             var pessoa = new Pessoa(message.Nome, message.CPF, message.DataNascimento, true);
             pessoa.AtribuirId(message.IdPessoa);
-            if (!pessoa.Validar()) return false;
             await _repositoryPessoa.Adicionar(pessoa);
             await _repositoryPessoa.Salvar();
             return true;
@@ -56,11 +59,15 @@ namespace Lartech.Domain.CQRS.Commands
                 await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, "Pessoa não localizado."));
                 return false;
             }
-            _pessoa.AtriuirNome(_pessoa.Nome);
-            _pessoa.AtriuirCPF(_pessoa.CPF);
-            _pessoa.AtriuirDataNascimento(_pessoa.DataNascimento);
-            if (!_pessoa.Validar()) return false;
-            if (await VerificarSeCPFJaExisteAlteracao(message)) return false; ;
+            _pessoa.AtriuirNome(message.Nome);
+            _pessoa.AtriuirCPF(message.CPF);
+            _pessoa.AtriuirDataNascimento(message.DataNascimento);
+            if (await VerificarSeCPFJaExiste(message.CPF, message.IdPessoa))
+            {
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, $"O CPF {message.CPF} já existe para outra pessoa."));
+                return false;
+            }
+
             await _repositoryPessoa.Atualizar(_pessoa);
             await _repositoryPessoa.Salvar();
             return true;
@@ -87,7 +94,6 @@ namespace Lartech.Domain.CQRS.Commands
             if (await VerificarSeTelefoneJaExiste(message)) return false;
             telefone.AtribuirId(message.Id);
             telefone.AtribuirIdPessoa(message.PessoaId);
-            if (!telefone.Validar()) return false;
             await _repositoryTelefone.Adicionar(telefone);
             await _repositoryPessoa.Salvar();
             return true;
@@ -103,11 +109,10 @@ namespace Lartech.Domain.CQRS.Commands
                 await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, "Telefone não localizado."));
                 return false;
             }
-            telefone.AtribuirId(message.Id);
-            telefone.AtribuirIdPessoa(message.PessoaId);
+            telefone.AtribuirId(telefone.Id);
+            telefone.AtribuirIdPessoa(telefone.PessoaId);
             telefone.AtribuirTipo(message.Tipo);
             telefone.AtribuirNumero(message.Numero);
-            if (!telefone.Validar()) return false;
             await _repositoryTelefone.Atualizar(telefone);
             await _repositoryTelefone.Salvar();
             return true;
@@ -185,33 +190,22 @@ namespace Lartech.Domain.CQRS.Commands
             if (result.Any())
             {
                 await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, $"O telefone {message.Numero} já existe para esta pessoa."));
-                return false;
-            }
-            return true;
-        }
-
-
-        private async Task<bool> VerificarSeCPFJaExiste(AdicionarPessoaCommand message)
-        {
-            var result = await _repositoryPessoa.ObterPorCpf(message.CPF, message.IdPessoa);
-            if (result != null && result.Id != message.IdPessoa)
-            {
-                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, $"O CPF {message.CPF} já existe para outra pessoa."));
                 return true;
             }
             return false;
         }
 
-        private async Task<bool> VerificarSeCPFJaExisteAlteracao(AlterarPessoaCommand message)
+
+        private async Task<bool> VerificarSeCPFJaExiste(string cpf , Guid idpessoa)
         {
-            var result = await _repositoryPessoa.ObterPorCpf(message.CPF);
-            if (result != null)
+            var result = await _repositoryPessoa.ObterPorCpf(cpf, idpessoa);
+            if (result != null && result.Id != idpessoa)
             {
-                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, $"O CPF {message.CPF} já existe para outra pessoa."));
                 return true;
             }
             return false;
         }
+
 
         private bool ValidarComando(Command message)
         {

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Lartech.Application.Models;
 using Lartech.Domain.CQRS.Commands;
+using Lartech.Domain.DTOS;
 using Lartech.Domain.Entidades;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,8 @@ namespace Lartech.Application.AutoMapper
                 .ForMember(d => d.ListaTelefone, o => o.MapFrom(s => s.ListaTelefones));
 
             CreateMap<Telefone, TelefoneModel>();
+            CreateMap<TelefoneDTO, TelefoneModel>();
+
         }
     }
 }

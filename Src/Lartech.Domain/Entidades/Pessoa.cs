@@ -96,7 +96,7 @@ namespace Lartech.Domain.Entidades
                      .WithMessage("Data de nascimento deve ser informada.");
 
                 RuleFor(p => p.DataNascimento)
-                    .LessThan(DateTime.Today)
+                    .LessThan(DateTime.Today.AddDays(-1))
                     .WithMessage("Data de nascimento deve ser inferior ao dia de hoje.");
 
                 RuleFor(p => p.CPF)
@@ -104,7 +104,6 @@ namespace Lartech.Domain.Entidades
                     .WithMessage("CPF inválido.");
 
             }
-
 
 
             public static bool ValidarCPF(string cpf)

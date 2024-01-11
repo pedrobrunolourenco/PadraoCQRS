@@ -150,6 +150,7 @@ namespace Lartech.Api.Controllers
 
         [HttpPut]
         [Route("AlterarPessoa")]
+        [AllowAnonymous]
         public async Task<IActionResult> AlterarPessoa([FromBody] PessoaAlteracaoModel model)
         {
             try
@@ -166,6 +167,7 @@ namespace Lartech.Api.Controllers
 
         [HttpDelete]
         [Route("RemoverPessoa")]
+        [AllowAnonymous]
         public async Task<IActionResult> RemoverPessoa(Guid id)
         {
             try
@@ -182,6 +184,7 @@ namespace Lartech.Api.Controllers
 
         [HttpPost]
         [Route("IncluirTelefone")]
+        [AllowAnonymous]
         public async Task<IActionResult> IncluirTelefone([FromBody] TelefoneModel model, Guid idpessoa)
         {
             try
@@ -198,6 +201,7 @@ namespace Lartech.Api.Controllers
 
         [HttpPut]
         [Route("AlterarTelefone")]
+        [AllowAnonymous]
         public async Task<IActionResult> AlterarTelefone([FromBody] TelefoneAlteracaoModel model)
         {
             try
@@ -215,6 +219,7 @@ namespace Lartech.Api.Controllers
 
         [HttpDelete]
         [Route("RemoverTelefone")]
+        [AllowAnonymous]
         public async Task<IActionResult> RemoverTelefone(Guid id)
         {
             try
@@ -231,6 +236,7 @@ namespace Lartech.Api.Controllers
 
         [HttpPatch]
         [Route("AtivarPessoa")]
+        [AllowAnonymous]
         public async Task<IActionResult> AtivarPessoa(Guid id)
         {
             try
@@ -247,6 +253,7 @@ namespace Lartech.Api.Controllers
 
         [HttpPatch]
         [Route("InativarPessoa")]
+        [AllowAnonymous]
         public async Task<IActionResult> InativarPessoa(Guid id)
         {
             try

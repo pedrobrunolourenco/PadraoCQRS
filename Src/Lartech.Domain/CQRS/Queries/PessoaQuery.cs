@@ -55,7 +55,7 @@ namespace Lartech.Domain.CQRS.Queries
         public async Task<IEnumerable<Telefone>> ObterTelefonesDaPessoa(Guid idpessoa)
         {
             var telefones = await _repositoryTelefone.Listar();
-            return telefones.Where(x => x.PessoaId == idpessoa);
+            return telefones.Where(x => x.PessoaId == idpessoa).ToList();
         }
 
 
