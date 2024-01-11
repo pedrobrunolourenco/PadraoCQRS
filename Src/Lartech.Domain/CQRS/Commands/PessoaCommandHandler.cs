@@ -5,12 +5,15 @@ using Lartech.Domain.Entidades;
 using Lartech.Domain.Interfaces.Repository;
 using MediatR;
 using System.Reflection.Metadata.Ecma335;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Lartech.Domain.CQRS.Commands
 {
     public class PessoaCommandHandler :
         IRequestHandler<AdicionarPessoaCommand, bool>,
-        IRequestHandler<AlterarPessoaCommand, bool>
+        IRequestHandler<AlterarPessoaCommand, bool>,
+        IRequestHandler<ExcluirPessoaCommand, bool>,
+        IRequestHandler<AdicionarTelefoneCommand, bool>
     {
         private readonly IRepositoryPessoa _repositoryPessoa;
         private readonly IRepositoryTelefone _repositoryTelefone;
@@ -44,8 +47,11 @@ namespace Lartech.Domain.CQRS.Commands
         {
             if (!ValidarComando(message)) return false;
             var _pessoa = await _repositoryPessoa.BuscarId(message.IdPessoa);
-            if (_pessoa == null) return false;
-
+            if (_pessoa == null)
+            {
+                message.ListaErros.Add("Pessoa não localizada.");
+                return false;
+            }
             _pessoa.AtriuirNome(_pessoa.Nome);
             _pessoa.AtriuirCPF(_pessoa.CPF);
             _pessoa.AtriuirDataNascimento(_pessoa.DataNascimento);
@@ -57,6 +63,32 @@ namespace Lartech.Domain.CQRS.Commands
             return true;
         }
 
+        public async Task<bool> Handle(ExcluirPessoaCommand message, CancellationToken cancellationToken)
+        {
+
+            var pessoa = await _repositoryPessoa.BuscarId(message.IdPessoa);
+            if (pessoa == null)
+            {
+                message.ListaErros.Add("Pessoa não localizada.");
+                return false;
+            }
+            await _repositoryPessoa.Remover(pessoa);
+            await _repositoryPessoa.Salvar();
+            return true;
+        }
+
+        public async Task<bool> Handle(AdicionarTelefoneCommand message, CancellationToken cancellationToken)
+        {
+            if (!ValidarComando(message)) return false;
+            var telefone = new Telefone(message.PessoaId, message.Tipo, message.Numero);
+            if (!telefone.Validar()) return false;
+            if (await VerificarSeTelefoneJaExiste(message)) return false;
+            telefone.AtribuirId(message.Id);
+            telefone.AtribuirIdPessoa(message.PessoaId);
+            await _repositoryTelefone.Adicionar(telefone);
+            await _repositoryPessoa.Salvar();
+            return true;
+        }
 
         private async Task<bool> AdicionouTelefone(AdicionarPessoaCommand message)
         {
@@ -75,6 +107,18 @@ namespace Lartech.Domain.CQRS.Commands
                     }
                     return false;
                 }
+            }
+            return true;
+        }
+
+        private async Task<bool> VerificarSeTelefoneJaExiste(AdicionarTelefoneCommand message)
+        {
+            var telefones = await _repositoryTelefone.Listar();
+            var result = telefones.Where(t => t.Numero == message.Numero && t.PessoaId == message.PessoaId);
+            if(result.Any())
+            {
+                message.ListaErros.Add($"O telefone {message.Numero} já existe para esta pessoa.");
+                return false;
             }
             return true;
         }
@@ -131,6 +175,20 @@ namespace Lartech.Domain.CQRS.Commands
             return false;
         }
 
+
+        private bool ValidarComando(AdicionarTelefoneCommand message)
+        {
+            if (message.EhValido()) return true;
+
+            foreach (var error in message.ValidationResult.Errors)
+            {
+
+                message.ListaErros.Add(error.ErrorMessage);
+                _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
+            }
+
+            return false;
+        }
 
     }
 }

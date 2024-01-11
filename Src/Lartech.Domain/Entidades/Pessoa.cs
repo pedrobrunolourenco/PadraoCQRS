@@ -17,7 +17,7 @@ namespace Lartech.Domain.Entidades
             CPF = cpf;
             DataNascimento = datanascimento;
             Ativo = ativo;
-            ListaTelefones = new List<Telefone>();
+            ListaTelefones = new List<Telefone?>();
         }
 
 

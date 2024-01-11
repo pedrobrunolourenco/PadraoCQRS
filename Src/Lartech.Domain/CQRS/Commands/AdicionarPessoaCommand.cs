@@ -19,7 +19,7 @@ namespace Lartech.Domain.CQRS.Commands
 
 
 
-        public AdicionarPessoaCommand(Guid idpessoa, string nome, string cpf, DateTime datanasimento, bool ativo, List<Telefone> listaTelefone)
+        public AdicionarPessoaCommand(Guid idpessoa, string nome, string cpf, DateTime datanasimento, bool ativo, List<Telefone?> listaTelefone)
         {
             IdPessoa = idpessoa;
             Nome = nome;
@@ -34,7 +34,7 @@ namespace Lartech.Domain.CQRS.Commands
 
         public override bool EhValido()
         {
-            ValidationResult = new PessoaValidation().Validate(this);
+            ValidationResult = new AdicionarPessoaCommandValidation().Validate(this);
             return ValidationResult.IsValid;
         }
 
@@ -42,9 +42,9 @@ namespace Lartech.Domain.CQRS.Commands
     }
 
 
-    public class PessoaValidation : AbstractValidator<AdicionarPessoaCommand>
+    public class AdicionarPessoaCommandValidation : AbstractValidator<AdicionarPessoaCommand>
     {
-        public PessoaValidation()
+        public AdicionarPessoaCommandValidation()
         {
             RuleFor(p => p.IdPessoa)
                  .NotEqual(Guid.Empty)

@@ -1,4 +1,5 @@
-﻿using Lartech.Domain.Entidades;
+﻿using Lartech.Domain.Core.Enum;
+using Lartech.Domain.Entidades;
 
 namespace Lattech.Tests.Domain.Entidades
 {

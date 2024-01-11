@@ -19,7 +19,7 @@ namespace Lartech.Domain.CQRS.Commands
 
 
 
-        public AlterarPessoaCommand(Guid idpessoa, string nome, string cpf, DateTime datanasimento, bool ativo, List<Telefone> listaTelefone)
+        public AlterarPessoaCommand(Guid idpessoa, string nome, string cpf, DateTime datanasimento, bool ativo, List<Telefone?> listaTelefone)
         {
             IdPessoa = idpessoa;
             Nome = nome;

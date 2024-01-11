@@ -1,15 +1,9 @@
 ﻿using FluentValidation;
-using System.Text.RegularExpressions;
+using Lartech.Domain.Core.Enum;
 
 namespace Lartech.Domain.Entidades
 {
 
-    public enum TipoTelefone
-    {
-        Celular,
-        Residencial,
-        Comercial
-    }
 
 
 
