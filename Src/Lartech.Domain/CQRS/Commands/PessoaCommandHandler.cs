@@ -13,7 +13,9 @@ namespace Lartech.Domain.CQRS.Commands
         IRequestHandler<AdicionarPessoaCommand, bool>,
         IRequestHandler<AlterarPessoaCommand, bool>,
         IRequestHandler<ExcluirPessoaCommand, bool>,
-        IRequestHandler<AdicionarTelefoneCommand, bool>
+        IRequestHandler<AdicionarTelefoneCommand, bool>,
+        IRequestHandler<AlterarTelefoneCommand, bool>
+
     {
         private readonly IRepositoryPessoa _repositoryPessoa;
         private readonly IRepositoryTelefone _repositoryTelefone;
@@ -36,8 +38,8 @@ namespace Lartech.Domain.CQRS.Commands
             if (await VerificarSeCPFJaExiste(message)) return false ;
             if (!await AdicionouTelefone(message)) return false;
             var pessoa = new Pessoa(message.Nome, message.CPF,message.DataNascimento,true);
-            if (!pessoa.Validar()) return false;
             pessoa.AtribuirId(message.IdPessoa);
+            if (!pessoa.Validar()) return false;
             await _repositoryPessoa.Adicionar(pessoa);
             await _repositoryPessoa.Salvar();
             return true;
@@ -55,7 +57,6 @@ namespace Lartech.Domain.CQRS.Commands
             _pessoa.AtriuirNome(_pessoa.Nome);
             _pessoa.AtriuirCPF(_pessoa.CPF);
             _pessoa.AtriuirDataNascimento(_pessoa.DataNascimento);
-
             if (!_pessoa.Validar()) return false;
             if( await VerificarSeCPFJaExisteAlteracao(message) ) return false; ;
             await _repositoryPessoa.Atualizar(_pessoa);
@@ -81,12 +82,32 @@ namespace Lartech.Domain.CQRS.Commands
         {
             if (!ValidarComando(message)) return false;
             var telefone = new Telefone(message.PessoaId, message.Tipo, message.Numero);
-            if (!telefone.Validar()) return false;
             if (await VerificarSeTelefoneJaExiste(message)) return false;
             telefone.AtribuirId(message.Id);
             telefone.AtribuirIdPessoa(message.PessoaId);
+            if (!telefone.Validar()) return false;
             await _repositoryTelefone.Adicionar(telefone);
             await _repositoryPessoa.Salvar();
+            return true;
+        }
+
+        public async Task<bool> Handle(AlterarTelefoneCommand message, CancellationToken cancellationToken)
+        {
+
+            if (!ValidarComando(message)) return false;
+            var telefone = await _repositoryTelefone.BuscarId(message.Id);
+            if (telefone == null)
+            {
+                message.ListaErros.Add("Telefone não localizado.");
+                return false;
+            }
+            telefone.AtribuirId(message.Id);
+            telefone.AtribuirIdPessoa(message.PessoaId);
+            telefone.AtribuirTipo(message.Tipo);
+            telefone.AtribuirNumero(message.Numero);
+            if (!telefone.Validar()) return false;
+            await _repositoryTelefone.Atualizar(telefone);
+            await _repositoryTelefone.Salvar();
             return true;
         }
 
@@ -146,35 +167,27 @@ namespace Lartech.Domain.CQRS.Commands
             return false;
         }
 
-
         private bool ValidarComando(AdicionarPessoaCommand message)
         {
             if (message.EhValido()) return true;
-
             foreach (var error in message.ValidationResult.Errors)
             {
-
                 message.ListaErros.Add(error.ErrorMessage);
                 _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
             }
-
             return false;
         }
 
         private bool ValidarComando(AlterarPessoaCommand message)
         {
             if (message.EhValido()) return true;
-
             foreach (var error in message.ValidationResult.Errors)
             {
-
                 message.ListaErros.Add(error.ErrorMessage);
                 _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
             }
-
             return false;
         }
-
 
         private bool ValidarComando(AdicionarTelefoneCommand message)
         {
@@ -182,11 +195,22 @@ namespace Lartech.Domain.CQRS.Commands
 
             foreach (var error in message.ValidationResult.Errors)
             {
+                message.ListaErros.Add(error.ErrorMessage);
+                _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
+            }
+            return false;
+        }
+
+        private bool ValidarComando(AlterarTelefoneCommand message)
+        {
+            if (message.EhValido()) return true;
+
+            foreach (var error in message.ValidationResult.Errors)
+            {
 
                 message.ListaErros.Add(error.ErrorMessage);
                 _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
             }
-
             return false;
         }
 

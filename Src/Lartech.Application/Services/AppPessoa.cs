@@ -117,7 +117,16 @@ namespace Lartech.Application.Services
 
         public async Task<TelefoneModel> AlterarTelefone(TelefoneAlteracaoModel fone)
         {
-            return _mapper.Map<TelefoneModel>(await _servicePessoa.AlterarTelefone(_mapper.Map<Telefone>(fone)));
+            var command = new AlterarTelefoneCommand(fone.Id, new Guid(), fone.Tipo, fone.Numero);
+            await _mediatrHandler.EnviarCommand(command);
+            return new TelefoneModel
+            {
+                Id = command.Id,
+                PessoaId = command.PessoaId,
+                Tipo = command.Tipo,
+                Numero = command.Numero,
+                ListaErros = command.ListaErros
+            };
         }
         public async Task<TelefoneModel> ExcluirTelefone(Guid idtelefone)
         {

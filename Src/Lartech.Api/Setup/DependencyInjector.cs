@@ -21,6 +21,7 @@ namespace Lartech.Api.Setup
             services.AddScoped<IRequestHandler<AlterarPessoaCommand, bool>, PessoaCommandHandler>();
             services.AddScoped<IRequestHandler<ExcluirPessoaCommand, bool>, PessoaCommandHandler>();
             services.AddScoped<IRequestHandler<AdicionarTelefoneCommand, bool>, PessoaCommandHandler>();
+            services.AddScoped<IRequestHandler<AlterarTelefoneCommand, bool>, PessoaCommandHandler>();
 
             services.AddScoped<IPessoaQuery, PessoaQuery>();
 
