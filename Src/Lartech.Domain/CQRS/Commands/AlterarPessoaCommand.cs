@@ -14,10 +14,6 @@ namespace Lartech.Domain.CQRS.Commands
         public DateTime DataNascimento { get; private set; }
         public bool Ativo { get; private set; }
         public List<Telefone?> ListaTelefones { get; private set; }
-        public List<string> ListaErros { get; private set; }
-
-
-
 
         public AlterarPessoaCommand(Guid idpessoa, string nome, string cpf, DateTime datanasimento, bool ativo, List<Telefone?> listaTelefone)
         {
@@ -27,7 +23,6 @@ namespace Lartech.Domain.CQRS.Commands
             DataNascimento = datanasimento;
             Ativo = ativo;
             ListaTelefones = listaTelefone;
-            ListaErros = new List<string>();
             AggregateId = idpessoa;
         }
 
@@ -36,8 +31,6 @@ namespace Lartech.Domain.CQRS.Commands
             ValidationResult = new AlterarPessoaValidation().Validate(this);
             return ValidationResult.IsValid;
         }
-
-
     }
 
 

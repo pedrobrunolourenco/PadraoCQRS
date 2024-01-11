@@ -3,6 +3,7 @@ using Lartech.Application.Services;
 using Lartech.Data;
 using Lartech.Data.Repositories;
 using Lartech.Domain.Core.Comunicacao.Mediator;
+using Lartech.Domain.Core.Messages.CommonMessges;
 using Lartech.Domain.CQRS.Commands;
 using Lartech.Domain.CQRS.Queries;
 using Lartech.Domain.Interfaces.Repository;
@@ -16,7 +17,13 @@ namespace Lartech.Api.Setup
     {
         public static void RegisterServices(this IServiceCollection services)
         {
+
+            // Mediatr
             services.AddScoped<IMediatrHandler, MediatrHandler>();
+
+            // notifications
+            services.AddScoped<INotificationHandler<DomainNotification>, DomainNotificationHandler>();
+
             services.AddScoped<IRequestHandler<AdicionarPessoaCommand, bool>, PessoaCommandHandler>();
             services.AddScoped<IRequestHandler<AlterarPessoaCommand, bool>, PessoaCommandHandler>();
             services.AddScoped<IRequestHandler<ExcluirPessoaCommand, bool>, PessoaCommandHandler>();

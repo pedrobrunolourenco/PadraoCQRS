@@ -4,11 +4,13 @@ using Lartech.Application.Models;
 using Lartech.Domain.Core.Comunicacao.Mediator;
 using Lartech.Domain.Core.Enum;
 using Lartech.Domain.Core.Messages;
+using Lartech.Domain.Core.Messages.CommonMessges;
 using Lartech.Domain.CQRS.Commands;
 using Lartech.Domain.CQRS.Queries;
 using Lartech.Domain.DTOS;
 using Lartech.Domain.Entidades;
 using Lartech.Domain.Interfaces.Service;
+using MediatR;
 using System.Reflection;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -16,6 +18,7 @@ namespace Lartech.Application.Services
 {
     public class AppPessoa : IAppPessoa
     {
+        private readonly DomainNotificationHandler _notifications;
 
         private readonly IMapper _mapper;
         private readonly IPessoaQuery _queryPessoa;
@@ -24,15 +27,33 @@ namespace Lartech.Application.Services
 
 
         public AppPessoa(IMapper mapper,
+                         INotificationHandler<DomainNotification> notifications,
                          IMediatrHandler mediatrHandler,
                          IPessoaQuery queryPessoa,
                          IServicePessoa servicePessoa)
         {
             _mapper = mapper;
+            _notifications = (DomainNotificationHandler)notifications;
             _mediatrHandler = mediatrHandler;
             _servicePessoa = servicePessoa;
             _queryPessoa = queryPessoa;
         }
+
+        protected bool OperacaoValida()
+        {
+            return (!_notifications.TemNotificacao());
+        }
+
+        protected List<string> ObterMensagensDeErro()
+        {
+            return _notifications.ObterNotificacoes().Select(c => c.Value).ToList();
+        }
+
+        protected void NotificarErros(string codigo, string mensagem)
+        {
+            _mediatrHandler.PublicarNotificacao(new DomainNotification(codigo, mensagem));
+        }
+
 
         public async Task<IEnumerable<PessoaViewModel>> ObterTodos()
         {
@@ -97,7 +118,7 @@ namespace Lartech.Application.Services
             await _mediatrHandler.EnviarCommand(command);
             var _pessoa = new PessoaModel();
             _pessoa.Id = id;
-            _pessoa.ListaErros = command.ListaErros;
+            _pessoa.ListaErros = ObterMensagensDeErro();
             return _pessoa;
         }
 
@@ -111,7 +132,7 @@ namespace Lartech.Application.Services
                 PessoaId = command.PessoaId,
                 Tipo = command.Tipo,
                 Numero = command.Numero,
-                ListaErros = command.ListaErros
+                ListaErros = ObterMensagensDeErro()
             };
         }
 
@@ -125,7 +146,7 @@ namespace Lartech.Application.Services
                 PessoaId = command.PessoaId,
                 Tipo = command.Tipo,
                 Numero = command.Numero,
-                ListaErros = command.ListaErros
+                ListaErros = ObterMensagensDeErro() 
             };
         }
         public async Task<TelefoneModel> ExcluirTelefone(Guid idtelefone)
@@ -153,7 +174,7 @@ namespace Lartech.Application.Services
                 CPF = command.CPF,
                 DataNascimento = command.DataNascimento,
                 Ativo = command.Ativo,
-                ListaErros = command.ListaErros
+                ListaErros = ObterMensagensDeErro()
             };
             var listatelefones = _mapper.Map<IEnumerable<TelefoneModel>>(_pessoa.ListaTelefones);
             foreach (var item in listatelefones)
@@ -172,7 +193,7 @@ namespace Lartech.Application.Services
                 CPF = command.CPF,
                 DataNascimento = command.DataNascimento,
                 Ativo = command.Ativo,
-                ListaErros = command.ListaErros
+                ListaErros = ObterMensagensDeErro()
             };
             var listatelefones = _mapper.Map<IEnumerable<TelefoneModel>>(_pessoa.ListaTelefones);
             foreach (var item in listatelefones)

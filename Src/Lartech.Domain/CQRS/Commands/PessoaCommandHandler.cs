@@ -1,9 +1,9 @@
 ﻿using Lartech.Domain.Core.Comunicacao.Mediator;
+using Lartech.Domain.Core.Messages;
 using Lartech.Domain.Core.Messages.CommonMessges;
 using Lartech.Domain.Entidades;
 using Lartech.Domain.Interfaces.Repository;
 using MediatR;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Lartech.Domain.CQRS.Commands
 {
@@ -34,9 +34,9 @@ namespace Lartech.Domain.CQRS.Commands
         {
 
             if (!ValidarComando(message)) return false;
-            if (await VerificarSeCPFJaExiste(message)) return false ;
+            if (await VerificarSeCPFJaExiste(message)) return false;
             if (!await AdicionouTelefone(message)) return false;
-            var pessoa = new Pessoa(message.Nome, message.CPF,message.DataNascimento,true);
+            var pessoa = new Pessoa(message.Nome, message.CPF, message.DataNascimento, true);
             pessoa.AtribuirId(message.IdPessoa);
             if (!pessoa.Validar()) return false;
             await _repositoryPessoa.Adicionar(pessoa);
@@ -50,14 +50,14 @@ namespace Lartech.Domain.CQRS.Commands
             var _pessoa = await _repositoryPessoa.BuscarId(message.IdPessoa);
             if (_pessoa == null)
             {
-                message.ListaErros.Add("Pessoa não localizada.");
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, "Pessoa não localizado."));
                 return false;
             }
             _pessoa.AtriuirNome(_pessoa.Nome);
             _pessoa.AtriuirCPF(_pessoa.CPF);
             _pessoa.AtriuirDataNascimento(_pessoa.DataNascimento);
             if (!_pessoa.Validar()) return false;
-            if( await VerificarSeCPFJaExisteAlteracao(message) ) return false; ;
+            if (await VerificarSeCPFJaExisteAlteracao(message)) return false; ;
             await _repositoryPessoa.Atualizar(_pessoa);
             await _repositoryPessoa.Salvar();
             return true;
@@ -69,7 +69,7 @@ namespace Lartech.Domain.CQRS.Commands
             var pessoa = await _repositoryPessoa.BuscarId(message.IdPessoa);
             if (pessoa == null)
             {
-                message.ListaErros.Add("Pessoa não localizada.");
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, "Pessoa não localizada."));
                 return false;
             }
             await _repositoryPessoa.Remover(pessoa);
@@ -97,7 +97,7 @@ namespace Lartech.Domain.CQRS.Commands
             var telefone = await _repositoryTelefone.BuscarId(message.Id);
             if (telefone == null)
             {
-                message.ListaErros.Add("Telefone não localizado.");
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, "Telefone não localizado."));
                 return false;
             }
             telefone.AtribuirId(message.Id);
@@ -115,7 +115,7 @@ namespace Lartech.Domain.CQRS.Commands
             var telefone = await _repositoryTelefone.BuscarId(message.Id);
             if (telefone == null)
             {
-                message.ListaErros.Add("Telefone não localizado.");
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, "Telefone não localizado."));
                 return false;
             }
             await _repositoryTelefone.Remover(telefone);
@@ -128,18 +128,18 @@ namespace Lartech.Domain.CQRS.Commands
         {
             foreach (var telefone in message.ListaTelefones)
             {
-                if (telefone != null &&  telefone.Validar())
+                if (telefone != null && telefone.Validar())
                 {
                     telefone.AtribuirIdPessoa(message.IdPessoa);
                     await _repositoryTelefone.Adicionar(telefone);
                 }
                 else
                 {
-                    if(telefone != null)
+                    if (telefone != null)
                     {
                         foreach (var erroTelefone in telefone.ListaErros)
                         {
-                            message.ListaErros.Add(erroTelefone);
+                            await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, erroTelefone));
                         }
                     }
                     return false;
@@ -152,9 +152,9 @@ namespace Lartech.Domain.CQRS.Commands
         {
             var telefones = await _repositoryTelefone.Listar();
             var result = telefones.Where(t => t.Numero == message.Numero && t.PessoaId == message.PessoaId);
-            if(result.Any())
+            if (result.Any())
             {
-                message.ListaErros.Add($"O telefone {message.Numero} já existe para esta pessoa.");
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, $"O telefone {message.Numero} já existe para esta pessoa."));
                 return false;
             }
             return true;
@@ -164,10 +164,9 @@ namespace Lartech.Domain.CQRS.Commands
         private async Task<bool> VerificarSeCPFJaExiste(AdicionarPessoaCommand message)
         {
             var result = await _repositoryPessoa.ObterPorCpf(message.CPF, message.IdPessoa);
-            if (result != null && result.Id != message.IdPessoa) 
+            if (result != null && result.Id != message.IdPessoa)
             {
                 await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, "O CPF {message.CPF} já existe para outra pessoa."));
-                message.ListaErros.Add($"O CPF {message.CPF} já existe para outra pessoa.");
                 return true;
             }
             return false;
@@ -178,54 +177,18 @@ namespace Lartech.Domain.CQRS.Commands
             var result = await _repositoryPessoa.ObterPorCpf(message.CPF);
             if (result != null)
             {
-                message.ListaErros.Add($"O CPF {message.CPF} já existe para outra pessoa.");
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, $"O CPF {message.CPF} já existe para outra pessoa."));
                 return true;
             }
             return false;
         }
 
-        private bool ValidarComando(AdicionarPessoaCommand message)
-        {
-            if (message.EhValido()) return true;
-            foreach (var error in message.ValidationResult.Errors)
-            {
-                message.ListaErros.Add(error.ErrorMessage);
-                _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
-            }
-            return false;
-        }
-
-        private bool ValidarComando(AlterarPessoaCommand message)
-        {
-            if (message.EhValido()) return true;
-            foreach (var error in message.ValidationResult.Errors)
-            {
-                message.ListaErros.Add(error.ErrorMessage);
-                _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
-            }
-            return false;
-        }
-
-        private bool ValidarComando(AdicionarTelefoneCommand message)
+        private bool ValidarComando(Command message)
         {
             if (message.EhValido()) return true;
 
             foreach (var error in message.ValidationResult.Errors)
             {
-                message.ListaErros.Add(error.ErrorMessage);
-                _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
-            }
-            return false;
-        }
-
-        private bool ValidarComando(AlterarTelefoneCommand message)
-        {
-            if (message.EhValido()) return true;
-
-            foreach (var error in message.ValidationResult.Errors)
-            {
-
-                message.ListaErros.Add(error.ErrorMessage);
                 _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, error.ErrorMessage));
             }
             return false;

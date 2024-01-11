@@ -2,6 +2,7 @@
 
 namespace Lartech.Api.Controllers
 {
+
     public abstract class  BasicController : ControllerBase
     {
         protected IActionResult RetornoRequest(object? result)

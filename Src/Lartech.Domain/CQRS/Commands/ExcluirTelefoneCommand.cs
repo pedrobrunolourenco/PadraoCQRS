@@ -6,12 +6,9 @@ namespace Lartech.Domain.CQRS.Commands
     {
         public Guid Id { get; private set; }
 
-        public List<string> ListaErros { get; private set; }
-
         public ExcluirTelefoneCommand(Guid id)
         {
             Id = id;
-            ListaErros = new List<string>();
             AggregateId = id;
         }
 

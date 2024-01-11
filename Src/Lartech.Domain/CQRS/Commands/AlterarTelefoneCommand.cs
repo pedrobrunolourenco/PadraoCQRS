@@ -10,7 +10,6 @@ namespace Lartech.Domain.CQRS.Commands
         public Guid PessoaId { get; private set; }
         public TipoTelefone Tipo { get; private set; }
         public string Numero { get; private set; }
-        public List<string> ListaErros { get; private set; }
 
         public AlterarTelefoneCommand(Guid id, Guid pessoaId, TipoTelefone tipo, string numero)
         {
@@ -18,7 +17,6 @@ namespace Lartech.Domain.CQRS.Commands
             PessoaId = pessoaId;
             Tipo = tipo;
             Numero = numero;
-            ListaErros = new List<string>();
             AggregateId = pessoaId;
         }
 
