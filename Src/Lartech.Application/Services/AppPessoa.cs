@@ -2,17 +2,12 @@
 using Lartech.Application.Interfaces;
 using Lartech.Application.Models;
 using Lartech.Domain.Core.Comunicacao.Mediator;
-using Lartech.Domain.Core.Enum;
-using Lartech.Domain.Core.Messages;
 using Lartech.Domain.Core.Messages.CommonMessges;
 using Lartech.Domain.CQRS.Commands;
 using Lartech.Domain.CQRS.Queries;
 using Lartech.Domain.DTOS;
 using Lartech.Domain.Entidades;
-using Lartech.Domain.Interfaces.Service;
 using MediatR;
-using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Lartech.Application.Services
 {
@@ -22,20 +17,17 @@ namespace Lartech.Application.Services
 
         private readonly IMapper _mapper;
         private readonly IPessoaQuery _queryPessoa;
-        private readonly IServicePessoa _servicePessoa;
         private readonly IMediatrHandler _mediatrHandler;
 
 
         public AppPessoa(IMapper mapper,
                          INotificationHandler<DomainNotification> notifications,
                          IMediatrHandler mediatrHandler,
-                         IPessoaQuery queryPessoa,
-                         IServicePessoa servicePessoa)
+                         IPessoaQuery queryPessoa)
         {
             _mapper = mapper;
             _notifications = (DomainNotificationHandler)notifications;
             _mediatrHandler = mediatrHandler;
-            _servicePessoa = servicePessoa;
             _queryPessoa = queryPessoa;
         }
 

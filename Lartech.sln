@@ -23,10 +23,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lartech.Api", "Src\Lartech.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lartech.Application", "Src\Lartech.Application\Lartech.Application.csproj", "{CB4BE60B-4CB6-4374-8221-49986F32DDA1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5-Tests", "5-Tests", "{E0901F21-6236-49E6-BE1B-857E51BE2ACC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lattech.Tests", "Test\Lattech.Tests\Lattech.Tests.csproj", "{05249F6E-B1FA-4B46-89EA-8B39A81A9C83}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,10 +45,6 @@ Global
 		{CB4BE60B-4CB6-4374-8221-49986F32DDA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB4BE60B-4CB6-4374-8221-49986F32DDA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB4BE60B-4CB6-4374-8221-49986F32DDA1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{05249F6E-B1FA-4B46-89EA-8B39A81A9C83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{05249F6E-B1FA-4B46-89EA-8B39A81A9C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{05249F6E-B1FA-4B46-89EA-8B39A81A9C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{05249F6E-B1FA-4B46-89EA-8B39A81A9C83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,7 +56,6 @@ Global
 		{FE105348-F889-441B-8AED-F5E64664C3AB} = {8FDD23D7-6C0D-43AA-BDFB-BBB032D3956F}
 		{863640E6-81D7-4C24-BA54-4B0F14F2E409} = {F8500E67-A9A8-413A-86BF-92D82868841D}
 		{CB4BE60B-4CB6-4374-8221-49986F32DDA1} = {BE6E5EB4-FDE8-42CB-A247-EAA168C46BFD}
-		{05249F6E-B1FA-4B46-89EA-8B39A81A9C83} = {E0901F21-6236-49E6-BE1B-857E51BE2ACC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC904026-DB70-4B8C-B3A3-23FDA83AD167}

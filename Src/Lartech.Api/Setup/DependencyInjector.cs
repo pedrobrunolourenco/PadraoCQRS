@@ -7,8 +7,6 @@ using Lartech.Domain.Core.Messages.CommonMessges;
 using Lartech.Domain.CQRS.Commands;
 using Lartech.Domain.CQRS.Queries;
 using Lartech.Domain.Interfaces.Repository;
-using Lartech.Domain.Interfaces.Service;
-using Lartech.Domain.Services;
 using MediatR;
 
 namespace Lartech.Api.Setup
@@ -37,7 +35,6 @@ namespace Lartech.Api.Setup
 
             // pessoa
             services.AddScoped<IRepositoryPessoa, RepositoryPessoa>();
-            services.AddScoped<IServicePessoa, ServicePessoa>();
             services.AddScoped<IAppPessoa, AppPessoa>();
             // telefone
             services.AddScoped<IRepositoryTelefone, RepositoryTelefone>();
