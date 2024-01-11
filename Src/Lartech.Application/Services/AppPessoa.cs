@@ -151,19 +151,28 @@ namespace Lartech.Application.Services
         }
         public async Task<TelefoneModel> ExcluirTelefone(Guid idtelefone)
         {
-            return _mapper.Map<TelefoneModel>(await _servicePessoa.ExcluirTelefone(idtelefone));
+            var command = new ExcluirTelefoneCommand(idtelefone);
+            await _mediatrHandler.EnviarCommand(command);
+            return new TelefoneModel
+            {
+                Id = command.Id,
+                ListaErros = ObterMensagensDeErro()
+            };
         }
 
         public async Task<PessoaModel> Ativar(Guid id)
         {
-            return _mapper.Map<PessoaModel>(await _servicePessoa.AtivarPessoa(id));
+            var command = new AtivarPessoaCommand(id);
+            await _mediatrHandler.EnviarCommand(command);
+            return await TranformaEmPessoaModel(command);
         }
 
         public async Task<PessoaModel> Inativar(Guid id)
         {
-            return _mapper.Map<PessoaModel>(await _servicePessoa.InativarPessoa(id));
+            var command = new DesativarPessoaCommand(id);
+            await _mediatrHandler.EnviarCommand(command);
+            return await TranformaEmPessoaModel(command);
         }
-
 
         private Task<PessoaModel> TranformaEmPessoaModel(AdicionarPessoaCommand command, Pessoa _pessoa)
         {
@@ -201,6 +210,53 @@ namespace Lartech.Application.Services
                 _retorno.ListaTelefone.Add(item);
             }
             return Task.Run(() => _retorno);
+        }
+
+        private async Task<PessoaModel> TranformaEmPessoaModel(AtivarPessoaCommand command)
+        {
+            var pessoa = await ObterPorId(command.Id);
+            var _retorno = new PessoaModel
+            {
+                Id = command.Id,
+                Nome = pessoa != null ? pessoa.Nome : null,
+                CPF = pessoa != null ? pessoa.CPF : null,
+                DataNascimento = pessoa != null ? pessoa.DataNascimento : DateTime.Today,
+                Ativo = pessoa != null ? pessoa.Ativo : false,
+                ListaErros = ObterMensagensDeErro()
+            };
+            if (pessoa != null)
+            {
+                var listatelefones = _mapper.Map<IEnumerable<TelefoneModel>>(pessoa.Telefones);
+                foreach (var item in listatelefones)
+                {
+                    _retorno.ListaTelefone.Add(item);
+                }
+            }
+            return _retorno;
+        }
+
+        private async Task<PessoaModel> TranformaEmPessoaModel(DesativarPessoaCommand command)
+        {
+            var pessoa = await ObterPorId(command.Id);
+
+            var _retorno = new PessoaModel
+            {
+                Id = command.Id,
+                Nome = pessoa != null ? pessoa.Nome : null,
+                CPF = pessoa != null ? pessoa.CPF : null,
+                DataNascimento = pessoa != null ? pessoa.DataNascimento : DateTime.Today,
+                Ativo = pessoa != null ? pessoa.Ativo : false,
+                ListaErros = ObterMensagensDeErro()
+            };
+            if(pessoa != null)
+            {
+                var listatelefones = _mapper.Map<IEnumerable<TelefoneModel>>(pessoa.Telefones);
+                foreach (var item in listatelefones)
+                {
+                    _retorno.ListaTelefone.Add(item);
+                }
+            }
+            return _retorno;
         }
 
     }

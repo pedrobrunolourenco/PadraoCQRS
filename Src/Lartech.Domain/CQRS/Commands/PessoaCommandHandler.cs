@@ -13,7 +13,10 @@ namespace Lartech.Domain.CQRS.Commands
         IRequestHandler<ExcluirPessoaCommand, bool>,
         IRequestHandler<AdicionarTelefoneCommand, bool>,
         IRequestHandler<AlterarTelefoneCommand, bool>,
-        IRequestHandler<ExcluirTelefoneCommand, bool>
+        IRequestHandler<ExcluirTelefoneCommand, bool>,
+        IRequestHandler<AtivarPessoaCommand, bool>,
+        IRequestHandler<DesativarPessoaCommand, bool>
+
 
     {
         private readonly IRepositoryPessoa _repositoryPessoa;
@@ -123,6 +126,33 @@ namespace Lartech.Domain.CQRS.Commands
             return true;
         }
 
+        public async Task<bool> Handle(AtivarPessoaCommand message, CancellationToken cancellationToken)
+        {
+            var pessoa = await _repositoryPessoa.BuscarId(message.Id);
+            if (pessoa == null)
+            {
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, "Pessoa não localizada."));
+                return false;
+            }
+            pessoa.Ativar();
+            await _repositoryPessoa.Atualizar(pessoa);
+            await _repositoryPessoa.Salvar();
+            return true;
+        }
+
+        public async Task<bool> Handle(DesativarPessoaCommand message, CancellationToken cancellationToken)
+        {
+            var pessoa = await _repositoryPessoa.BuscarId(message.Id);
+            if (pessoa == null)
+            {
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, "Pessoa não localizada."));
+                return false;
+            }
+            pessoa.Inativar();
+            await _repositoryPessoa.Atualizar(pessoa);
+            await _repositoryPessoa.Salvar();
+            return true;
+        }
 
         private async Task<bool> AdicionouTelefone(AdicionarPessoaCommand message)
         {
@@ -166,7 +196,7 @@ namespace Lartech.Domain.CQRS.Commands
             var result = await _repositoryPessoa.ObterPorCpf(message.CPF, message.IdPessoa);
             if (result != null && result.Id != message.IdPessoa)
             {
-                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, "O CPF {message.CPF} já existe para outra pessoa."));
+                await _mediatorHandler.PublicarNotificacao(new DomainNotification(message.MessageType, $"O CPF {message.CPF} já existe para outra pessoa."));
                 return true;
             }
             return false;
