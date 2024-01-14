@@ -1,9 +1,5 @@
-﻿
-using Lartech.Application.Interfaces;
+﻿using Lartech.Application.Interfaces;
 using Lartech.Application.Models;
-using Lartech.Domain.Core.Comunicacao.Mediator;
-using Lartech.Domain.Core.Messages.CommonMessges;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,15 +13,12 @@ namespace Lartech.Api.Controllers
         private IAppPessoa _appPessoa;
         private ILogger _logger;
 
-        private readonly IMediatrHandler _mediatrHandler;
 
         public PessoaController(IAppPessoa appPessoa,
-                                IMediatrHandler mediatrHandler,
                                 ILogger<PessoaController> logger) 
         {
             _appPessoa = appPessoa;
             _logger = logger;
-            _mediatrHandler = mediatrHandler;
         }
 
 
@@ -127,6 +120,7 @@ namespace Lartech.Api.Controllers
 
         [HttpPost]
         [Route("IncluirPessoa")]
+        [AllowAnonymous]
         public async Task<IActionResult> IncluirPessoa([FromBody] PessoaModel model)
         {
             try

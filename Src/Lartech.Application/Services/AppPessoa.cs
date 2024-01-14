@@ -7,6 +7,7 @@ using Lartech.Domain.CQRS.Commands;
 using Lartech.Domain.CQRS.Queries;
 using Lartech.Domain.DTOS;
 using Lartech.Domain.Entidades;
+using MassTransit;
 using MediatR;
 
 namespace Lartech.Application.Services
@@ -18,10 +19,15 @@ namespace Lartech.Application.Services
         private readonly IMapper _mapper;
         private readonly IPessoaQuery _queryPessoa;
         private readonly IMediatrHandler _mediatrHandler;
+        private readonly IPublishEndpoint _publish;
+        private readonly IBus _bus;
+
 
 
         public AppPessoa(IMapper mapper,
                          INotificationHandler<DomainNotification> notifications,
+                         IBus bus,
+                         IPublishEndpoint publish,
                          IMediatrHandler mediatrHandler,
                          IPessoaQuery queryPessoa)
         {
@@ -29,6 +35,8 @@ namespace Lartech.Application.Services
             _notifications = (DomainNotificationHandler)notifications;
             _mediatrHandler = mediatrHandler;
             _queryPessoa = queryPessoa;
+            _publish = publish;
+            _bus = bus;
         }
 
         protected bool OperacaoValida()
@@ -86,7 +94,29 @@ namespace Lartech.Application.Services
 
             var command = new AdicionarPessoaCommand(_pessoa.Id, _pessoa.Nome, _pessoa.CPF, _pessoa.DataNascimento, _pessoa.Ativo, _pessoa.ListaTelefones);
             await _mediatrHandler.EnviarCommand(command);
-            return await TranformaEmPessoaModel(command, _pessoa);
+
+            var result = await TranformaEmPessoaModel(command, _pessoa);
+
+            if (result != null)
+            {
+                Uri uri = new Uri("rabbitmq://localhost/FilaPessoa");
+                var endPoint = await _bus.GetSendEndpoint(uri);
+
+                await endPoint.Send(new PessoaModelMessage
+                {
+                    Id = result.Id,
+                    ListaErros = result.ListaErros,
+                    Nome = result.Nome,
+                    CPF = result.CPF,
+                    DataNascimento = result.DataNascimento,
+                    ListaTelefone = result.ListaTelefone,
+                    Ativo = result.Ativo
+
+                });
+
+            }
+            return result;
+
         }
 
         public async Task<PessoaModel> AlterarPessoa(PessoaAlteracaoModel pessoa)
@@ -138,7 +168,7 @@ namespace Lartech.Application.Services
                 PessoaId = command.PessoaId,
                 Tipo = command.Tipo,
                 Numero = command.Numero,
-                ListaErros = ObterMensagensDeErro() 
+                ListaErros = ObterMensagensDeErro()
             };
         }
         public async Task<TelefoneModel> ExcluirTelefone(Guid idtelefone)
@@ -182,7 +212,7 @@ namespace Lartech.Application.Services
             {
                 _retorno.ListaTelefone.Add(item);
             }
-            return Task.Run( () => _retorno );
+            return Task.Run(() => _retorno);
         }
 
         private Task<PessoaModel> TranformaEmPessoaModel(AlterarPessoaCommand command, Pessoa _pessoa)
@@ -240,7 +270,7 @@ namespace Lartech.Application.Services
                 Ativo = pessoa != null ? pessoa.Ativo : false,
                 ListaErros = ObterMensagensDeErro()
             };
-            if(pessoa != null)
+            if (pessoa != null)
             {
                 var listatelefones = _mapper.Map<IEnumerable<TelefoneModel>>(pessoa.Telefones);
                 foreach (var item in listatelefones)
