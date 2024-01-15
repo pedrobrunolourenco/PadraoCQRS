@@ -16,7 +16,7 @@ namespace Lartech.Data.Repositories
             DbSet = _context.Set<TEntidade>();
         }
 
-        public async Task<TEntidade> BuscarId(Guid id)
+        public async Task<TEntidade?> BuscarId(Guid id)
         {
             return await DbSet.FindAsync(id);
         }
