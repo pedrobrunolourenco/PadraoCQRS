@@ -120,7 +120,6 @@ namespace Lartech.Api.Controllers
 
         [HttpPost]
         [Route("IncluirPessoa")]
-        [AllowAnonymous]
         public async Task<IActionResult> IncluirPessoa([FromBody] PessoaModel model)
         {
             try
