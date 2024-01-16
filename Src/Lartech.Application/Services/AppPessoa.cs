@@ -95,28 +95,26 @@ namespace Lartech.Application.Services
             var command = new AdicionarPessoaCommand(_pessoa.Id, _pessoa.Nome, _pessoa.CPF, _pessoa.DataNascimento, _pessoa.Ativo, _pessoa.ListaTelefones);
             await _mediatrHandler.EnviarCommand(command);
 
-            var result = await TranformaEmPessoaModel(command, _pessoa);
 
-            if (result != null)
-            {
-                Uri uri = new Uri("rabbitmq://localhost/FilaPessoa");
-                var endPoint = await _bus.GetSendEndpoint(uri);
+            return await TranformaEmPessoaModel(command, _pessoa);
 
-                await endPoint.Send(new PessoaModelMessage
-                {
-                    Id = result.Id,
-                    ListaErros = result.ListaErros,
-                    Nome = result.Nome,
-                    CPF = result.CPF,
-                    DataNascimento = result.DataNascimento,
-                    ListaTelefone = result.ListaTelefone,
-                    Ativo = result.Ativo
+            //if (result != null)
+            //{
+            //    Uri uri = new Uri("rabbitmq://localhost/FilaPessoa");
+            //    var endPoint = await _bus.GetSendEndpoint(uri);
 
-                });
+            //    await endPoint.Send(new PessoaModelMessage
+            //    {
+            //        Id = result.Id,
+            //        ListaErros = result.ListaErros,
+            //        Nome = result.Nome,
+            //        CPF = result.CPF,
+            //        DataNascimento = result.DataNascimento,
+            //        ListaTelefone = result.ListaTelefone,
+            //        Ativo = result.Ativo
 
-            }
-            return result;
-
+            //    });
+            //}
         }
 
         public async Task<PessoaModel> AlterarPessoa(PessoaAlteracaoModel pessoa)
